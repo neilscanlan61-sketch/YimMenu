@@ -63,7 +63,7 @@ target_include_directories(YimMenu PRIVATE
 )
 
 target_precompile_headers(YimMenu PRIVATE "${SRC_DIR}/common.hpp")
-target_link_libraries(YimMenu PRIVATE pugixml minhook AsyncLogger dbghelp imgui cpr lua_static asmjit::asmjit windowscodecs ole32)
+target_link_libraries(YimMenu PRIVATE pugixml minhook AsyncLogger dbghelp imgui cpr lua_static asmjit::asmjit)
 
 # Warnings as errors
 set_property(TARGET YimMenu PROPERTY COMPILE_WARNING_AS_ERROR ON)
