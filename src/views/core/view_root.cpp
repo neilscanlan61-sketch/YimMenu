@@ -1,14 +1,12 @@
 #include "views/view.hpp"
+#include "gui/mini/MiniUI.hpp"
 #include "lua/lua_manager.hpp"
 
 namespace big
 {
 	void view::root()
 	{
-		view::heading();
-		view::navigation();
-		view::players();
-		view::active_view();
+		mini::Draw();
 
 		debug::main();
 

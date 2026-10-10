@@ -1,3 +1,5 @@
+#pragma once
+#include <mutex>
 #include "file_manager.hpp"
 #include "util/teleport.hpp"
 
@@ -6,7 +8,7 @@ namespace big
 	struct telelocation
 	{
 		std::string name;
-		float x, y, z;
+		float x=0, y=0, z=0;
 		float yaw = 0.0f, pitch = 0.0f, roll = 0.0f;
 	};
 
@@ -22,7 +24,12 @@ namespace big
 		telelocation* get_saved_location_by_name(std::string);
 		std::vector<telelocation> saved_locations_filtered_list(std::string filter = "");
 
+        std::map<std::string,std::vector<telelocation>> snapshot()
+        { std::lock_guard lock(m_mutex); return all_saved_locations; }
+        bool try_save_unique(const std::string& category,telelocation value)
+        { std::lock_guard lock(m_mutex); if (get_saved_location_by_name(value.name)) return false; return save_new_location(category,value); }
 	private:
+        std::recursive_mutex m_mutex;
 		std::filesystem::path get_telelocations_file_path();
 	};
 

@@ -13,6 +13,9 @@ namespace big
 		explicit renderer();
 		~renderer() = default;
 
+		ID3D11Device* mini_device() const { return m_d3d_device; }
+		ID3D11DeviceContext* mini_context() const { return m_d3d_device_context; }
+
 		font_mgr& get_font_mgr()
 		{
 			return m_font_mgr;

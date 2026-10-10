@@ -219,6 +219,12 @@ namespace big
 	{
 		if (g_gui->m_is_open || g_gui->m_override_mouse)
 		{
+            for (int group=0;group<3;++group)
+                for (auto input : {ControllerInputs::INPUT_PHONE,ControllerInputs::INPUT_CELLPHONE_UP,
+                    ControllerInputs::INPUT_CELLPHONE_DOWN,ControllerInputs::INPUT_CURSOR_SCROLL_UP,
+                    ControllerInputs::INPUT_CURSOR_SCROLL_DOWN,ControllerInputs::INPUT_NEXT_CAMERA})
+                    PAD::DISABLE_CONTROL_ACTION(group,static_cast<int>(input),true);
+
 			PAD::DISABLE_CONTROL_ACTION(2, static_cast<int>(ControllerInputs::INPUT_NEXT_CAMERA), true);
 			PAD::DISABLE_CONTROL_ACTION(2, static_cast<int>(ControllerInputs::INPUT_LOOK_LR), true);
 			PAD::DISABLE_CONTROL_ACTION(2, static_cast<int>(ControllerInputs::INPUT_LOOK_UD), true);

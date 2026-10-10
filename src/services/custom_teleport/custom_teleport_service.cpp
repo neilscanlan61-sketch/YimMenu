@@ -9,10 +9,11 @@ namespace big
 
 	std::vector<telelocation> custom_teleport_service::saved_locations_filtered_list(std::string filter)
 	{
+        std::lock_guard lock(m_mutex);
 		std::vector<telelocation> filterlist{};
 
 		static auto to_lower = [=](std::string text) -> std::string {
-			std::transform(text.begin(), text.end(), text.begin(), ::tolower);
+			std::transform(text.begin(), text.end(), text.begin(), [](unsigned char c){ return static_cast<char>(std::tolower(c)); });
 			return text;
 		};
 
@@ -25,6 +26,7 @@ namespace big
 
 	bool custom_teleport_service::fetch_saved_locations()
 	{
+        std::lock_guard lock(m_mutex);
 		all_saved_locations.clear();
 
 		auto path = get_telelocations_file_path();
@@ -52,6 +54,7 @@ namespace big
 
 	bool custom_teleport_service::save_new_location(const std::string& category, telelocation t)
 	{
+        std::lock_guard lock(m_mutex);
 		const auto& pair = all_saved_locations.insert({category, {t}});
 		if (!pair.second)
 		{
@@ -75,6 +78,7 @@ namespace big
 
 	bool custom_teleport_service::delete_saved_location(const std::string& category, const std::string& location_name)
 	{
+        std::lock_guard lock(m_mutex);
 		auto path = get_telelocations_file_path();
 
 		const auto& it = all_saved_locations.find(category);
@@ -103,9 +107,10 @@ namespace big
 
 	telelocation* custom_teleport_service::get_saved_location_by_name(std::string name)
 	{
-		for (auto& loc : g_custom_teleport_service.saved_locations_filtered_list())
-			if (loc.name == name)
-				return &loc;
+        std::lock_guard lock(m_mutex);
+		for (auto& entry : all_saved_locations)
+            for (auto& loc : entry.second)
+                if (loc.name == name) return &loc;
 
 		return nullptr;
 	}

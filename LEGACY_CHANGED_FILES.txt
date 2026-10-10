@@ -1,0 +1,52 @@
+Changes against uploaded YimMenu-master.zip:
+
+CMakeLists.txt
+ROCKSTAR_TOOL_LEGACY_README.md
+docs/rockstar-mini/ATTRIBUTION.md
+docs/rockstar-mini/Rockstar Mini.gif
+docs/rockstar-mini/Rockstar Mini.theme
+docs/rockstar-mini/Rojo Mini.gif
+docs/rockstar-mini/Rojo Mini.theme
+docs/rockstar-mini/YimMenuV2-LICENSE.txt
+docs/rockstar-mini/legacy-saved-preview.html
+docs/rockstar-mini/legacy-saved-small.png
+docs/rockstar-mini/legacy-vehicle-desktop.png
+docs/rockstar-mini/legacy-vehicle-preview.html
+src/gui/mini/ClickTheme.cpp
+src/gui/mini/ClickTheme.hpp
+src/gui/mini/LocationBrowserPolicy.hpp
+src/gui/mini/MiniFonts.cpp
+src/gui/mini/MiniFonts.hpp
+src/gui/mini/MiniTravel.cpp
+src/gui/mini/MiniUI.cpp
+src/gui/mini/MiniUI.hpp
+src/gui.cpp
+src/renderer/GifAnimation.hpp
+src/renderer/MiniBackground.cpp
+src/renderer/MiniBackground.hpp
+src/renderer/font_mgr.cpp
+src/renderer/renderer.cpp
+src/renderer/renderer.hpp
+src/services/custom_teleport/custom_teleport_service.cpp
+src/services/custom_teleport/custom_teleport_service.hpp
+src/views/core/view_root.cpp
+src/views/self/view_custom_teleport.cpp
+src/views/settings/view_gui_settings.cpp
+tests/mini/CoreMock.hpp
+tests/mini/Mock.hpp
+tests/mini/README.md
+tests/mini/main.cpp
+tests/mini/mock-include/file_manager.hpp
+tests/mini/mock-include/imgui.h
+tests/mini/mock-include/lua/lua_manager.hpp
+tests/mini/mock-include/renderer/MiniBackground.hpp
+tests/mini/mock-include/services/custom_teleport/custom_teleport_service.hpp
+tests/mini/mock-include/services/gui/gui_service.hpp
+tests/mini/mock-include/services/players/player_service.hpp
+tests/mini/mock-include/services/translation_service/translation_service.hpp
+tests/mini/mock-include/services/vehicle/persist_car_service.hpp
+tests/mini/mock-include/util/blip.hpp
+tests/mini/mock-include/util/mobile.hpp
+tests/mini/mock-include/util/teleport.hpp
+tests/mini/mock-include/util/vehicle.hpp
+tests/mini/mock-include/views/view.hpp

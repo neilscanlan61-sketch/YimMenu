@@ -1,0 +1,28 @@
+#pragma once
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <vector>
+#include <cassert>
+#include <iostream>
+#include <functional>
+using ImU32=unsigned; using ImGuiWindowFlags=int;
+struct ImVec2 { float x=0,y=0; ImVec2(float a=0,float b=0):x(a),y(b){} };
+struct ImVec4 { float x=0,y=0,z=0,w=0; ImVec4(float a=0,float b=0,float c=0,float d=0):x(a),y(b),z(c),w(d){} };
+struct ImFont {};
+enum { ImGuiCol_WindowBg,ImGuiCol_ChildBg,ImGuiCol_PopupBg,ImGuiCol_Text,ImGuiCol_TextDisabled,ImGuiCol_Border,ImGuiCol_Button,ImGuiCol_ButtonHovered,ImGuiCol_ButtonActive,ImGuiCol_Header,ImGuiCol_HeaderHovered,ImGuiCol_HeaderActive,ImGuiCol_FrameBg,ImGuiCol_FrameBgHovered,ImGuiCol_FrameBgActive,ImGuiCol_CheckMark,ImGuiCol_SliderGrab,ImGuiCol_SliderGrabActive,ImGuiCol_ScrollbarBg,ImGuiCol_ScrollbarGrab,ImGuiCol_ScrollbarGrabHovered,ImGuiCol_ScrollbarGrabActive,ImGuiCol_Tab,ImGuiCol_TabActive,ImGuiCol_TabHovered,ImGuiCol_Separator,ImGuiCol_TitleBg,ImGuiCol_TitleBgActive };
+enum {ImGuiCond_Always=1,ImGuiCond_FirstUseEver=2,ImGuiCond_Appearing=3,ImGuiWindowFlags_NoTitleBar=1,ImGuiWindowFlags_NoCollapse=2,ImGuiWindowFlags_NoScrollbar=4,ImGuiWindowFlags_NoResize=8,ImGuiWindowFlags_HorizontalScrollbar=16,ImGuiMouseButton_Left=0};
+struct ImGuiStyle { ImVec2 WindowPadding,FramePadding,ItemSpacing,ItemInnerSpacing;float FrameBorderSize=0,WindowRounding=11,ChildRounding=0,FrameRounding=0,GrabRounding=0,TabRounding=0,ScrollbarSize=0,ScrollbarRounding=0,WindowBorderSize=0,ChildBorderSize=0;ImVec4 Colors[40]; };
+struct ImGuiIO { ImVec2 DisplaySize{1920,1080},MouseDelta; };
+struct ImDrawList { void AddCircleFilled(ImVec2,float,ImU32,int){} void AddRectFilled(ImVec2,ImVec2,ImU32,float=0){} void AddRect(ImVec2,ImVec2,ImU32,float=0){} void AddLine(ImVec2,ImVec2,ImU32){} void PushClipRect(ImVec2,ImVec2,bool){} void PopClipRect(){}void AddRectFilledMultiColor(ImVec2,ImVec2,ImU32,ImU32,ImU32,ImU32){}void AddText(ImFont*,float,ImVec2,ImU32,const char*){} };
+struct ImDrawListSplitter { void Split(ImDrawList*,int){}void SetCurrentChannel(ImDrawList*,int){}void Merge(ImDrawList*){} };
+namespace ImGui {
+inline ImGuiStyle style; inline ImGuiIO io; inline ImDrawList draw;inline int windows=0,children=0,groups=0,styleColors=0,itemWidths=0,fonts=0,ids=0,categoryDraws=0,playerDocks=0,playerInfo=0,groupDraws=0,customDraws=0;
+inline bool begin=true,child=true,pop=false;inline std::string click;inline float availableWidth=740;inline std::vector<const void*> idStack;
+inline ImGuiStyle& GetStyle(){return style;}inline ImGuiIO& GetIO(){return io;}inline ImDrawList* GetWindowDrawList(){return &draw;}inline ImVec2 GetContentRegionAvail(){return {availableWidth,600};}inline ImVec2 GetCursorScreenPos(){return {32,32};}inline float GetCursorPosX(){return 8;}inline void SetCursorPosX(float){}inline void SetCursorScreenPos(ImVec2){}inline ImVec2 GetItemRectMin(){return {32,32};}inline ImVec2 GetItemRectMax(){return {400,200};}inline ImVec2 GetWindowPos(){return {32,32};}inline ImVec2 GetWindowSize(){return {860,740};}inline float GetFontSize(){return 19;}inline ImFont* GetFont(){static ImFont f;return &f;}inline ImVec2 CalcTextSize(const char* s){return {float(std::string(s).size()*8),19};}inline ImU32 GetColorU32(ImVec4){return 1;}
+inline void PushID(const void* p){++ids;idStack.push_back(p);}inline void PushID(int p){PushID(reinterpret_cast<void*>(static_cast<std::uintptr_t>(p)));}inline void PopID(){--ids;idStack.pop_back();}inline void PushStyleColor(int,ImVec4){++styleColors;}inline void PopStyleColor(){--styleColors;}inline void PushFont(ImFont*){++fonts;}inline void PopFont(){--fonts;}inline void PushItemWidth(float){++itemWidths;}inline void PopItemWidth(){--itemWidths;}inline void BeginGroup(){++groups;}inline void EndGroup(){--groups;}inline void Dummy(ImVec2){}inline void Indent(float){}inline void Unindent(float){}inline void Separator(){}inline void Spacing(){}inline void SameLine(float=0,float=-1){}
+template<class...T>void TextColored(ImVec4,const char*,T...){}template<class...T>void TextWrapped(const char*,T...){}template<class...T>void TextDisabled(const char*,T...){}inline void TextUnformatted(const char*){}template<class...T>void SetTooltip(const char*,T...){}
+inline void SetNextItemWidth(float){}inline void SetNextWindowSize(ImVec2,int){}inline void SetNextWindowPos(ImVec2,int){}inline void SetWindowPos(ImVec2){}inline bool Begin(const char*,bool*,int){++windows;return begin;}inline void End(){--windows;}inline bool BeginChild(const char*,ImVec2,bool,int=0){++children;return child;}inline void EndChild(){--children;}
+inline bool Button(const char* label,ImVec2={}){if(click==label){click.clear();return true;}return false;}inline bool Checkbox(const char* label,bool* value){if(Button(label)){*value=!*value;return true;}return false;}inline bool SmallButton(const char* s){return Button(s);}inline bool InvisibleButton(const char*,ImVec2){return false;}inline bool IsItemActive(){return false;}inline bool IsItemHovered(){return false;}inline bool IsMouseDragging(int){return false;}inline bool InputTextWithHint(const char*,const char*,char*,size_t){return false;}inline bool InputText(const char*,char*,size_t){return false;}inline bool ColorEdit4(const char*,float*){return false;}inline bool SliderFloat(const char*,float*,float,float,const char*){return false;}inline bool BeginCombo(const char*,const char*){return false;}inline void EndCombo(){}inline bool Selectable(const char* s,bool=false,int=0){return Button(s);}inline void OpenPopup(const char*){}inline bool BeginPopup(const char*){return pop;}inline bool BeginPopupModal(const char*,bool*,int=0){return pop;}inline void EndPopup(){}inline void CloseCurrentPopup(){}
+}
+

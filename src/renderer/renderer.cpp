@@ -1,4 +1,5 @@
 #include "renderer.hpp"
+#include "MiniBackground.hpp"
 
 #include "file_manager.hpp"
 #include "gui.hpp"
@@ -51,6 +52,7 @@ namespace big
 
 	void renderer::destroy()
 	{
+        mini::ResetBackground();
 		ImGui_ImplWin32_Shutdown();
 		ImGui_ImplDX11_Shutdown();
 		ImGui::DestroyContext();
@@ -77,6 +79,7 @@ namespace big
 		if (m_font_mgr.can_use()) [[likely]]
 		{
 			new_frame();
+            mini::TickBackground(g_gui && g_gui->is_open());
 			for (const auto& cb : m_dx_callbacks | std::views::values)
 				cb();
 			end_frame();
@@ -100,6 +103,7 @@ namespace big
 
 	void renderer::pre_reset()
 	{
+        mini::ResetBackground();
 		ImGui_ImplDX11_InvalidateDeviceObjects();
 	}
 

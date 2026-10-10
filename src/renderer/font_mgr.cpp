@@ -1,4 +1,5 @@
 #include "font_mgr.hpp"
+#include "gui/mini/MiniFonts.hpp"
 
 #include "fonts/fonts.hpp"
 #include "pointers.hpp"
@@ -86,6 +87,25 @@ namespace big
 			std::strcpy(font_icons_cfg.Name, "Icons");
 			g.window.font_icon = ImGui::GetIO().Fonts->AddFontFromMemoryTTF(const_cast<uint8_t*>(font_icons), sizeof(font_icons), 24.f, &font_icons_cfg);
 		}
+
+        // Rebuild Mini fonts under the same atlas lock as Legacy fonts.
+        for (auto entry : {std::pair<float,ImFont**>{17.f,&mini::options}, {22.f,&mini::title}})
+        {
+            ImFontConfig cfg{}; cfg.FontDataOwnedByAtlas=false;
+            *entry.second=io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(mini::MainFont),mini::MainFontSize,entry.first,&cfg,io.Fonts->GetGlyphRangesDefault());
+            for (const auto type : required_alphabet_types)
+            {
+                const auto file=get_available_font_file_for_alphabet_type(type);
+                if (type!=eAlphabetType::LATIN && file.exists())
+                {
+                    cfg.MergeMode=true;
+                    io.Fonts->AddFontFromFileTTF(file.get_path().string().c_str(),entry.first,&cfg,get_imgui_alphabet_type(type));
+                }
+            }
+        }
+        ImFontConfig iconCfg{}; iconCfg.FontDataOwnedByAtlas=false;
+        static const ImWchar iconRange[]={0xf000,0xf8ff,0};
+        mini::icons=io.Fonts->AddFontFromMemoryTTF(const_cast<unsigned char*>(mini::IconFont),mini::IconFontSize,20.f,&iconCfg,iconRange);
 
 		g_renderer.post_reset();
 

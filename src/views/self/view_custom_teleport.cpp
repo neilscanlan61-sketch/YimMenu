@@ -1,211 +1,37 @@
 #include "services/custom_teleport/custom_teleport_service.hpp"
-#include "util/math.hpp"
+#include "gui/mini/LocationBrowserPolicy.hpp"
 #include "util/teleport.hpp"
 #include "util/blip.hpp"
 #include "views/view.hpp"
-
-namespace big
-{
-	telelocation get_location_player_is_closest_to()
-	{
-		if (!g_local_player || !g_local_player->m_navigation || g_custom_teleport_service.all_saved_locations.empty())
-			return {};
-
-		Vector3 transformed_vector = Vector3(g_local_player->m_navigation->get_position()->x,
-		    g_local_player->m_navigation->get_position()->y,
-		    g_local_player->m_navigation->get_position()->z);
-
-		float distance = 500;
-		telelocation closest_location{};
-		//saved_locations_filtered_list can be used to get a joint list of all categories when the filter is empty.
-		for (auto& loc : g_custom_teleport_service.saved_locations_filtered_list())
-		{
-			float new_distance = math::distance_between_vectors(transformed_vector, {loc.x, loc.y, loc.z});
-
-			if (new_distance < distance)
-				closest_location = loc, distance = new_distance;
-		}
-
-		return closest_location;
-	}
-
-	float get_distance_to_telelocation(telelocation t)
-	{
-		return math::distance_between_vectors(Vector3(t.x,t.y,t.z), Vector3(g_local_player->m_navigation->get_position()->x,
-		    g_local_player->m_navigation->get_position()->y,
-		    g_local_player->m_navigation->get_position()->z));
-	}
-
-	void view::custom_teleport()
-	{
-		ImGui::BeginGroup();
-		static std::string new_location_name{};
-		static std::string category = "Default";
-		static telelocation deletion_telelocation;
-		static std::string filter{};
-
-		if (!std::string(deletion_telelocation.name).empty())
-			ImGui::OpenPopup("##deletelocation");
-
-		if (ImGui::BeginPopupModal("##deletelocation", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove))
-		{
-			ImGui::Text("VIEW_SELF_ANIMATIONS_ARE_YOU_SURE_DELETE"_T.data(), deletion_telelocation.name);
-
-			ImGui::Spacing();
-
-			if (ImGui::Button("YES"_T.data()))
-			{
-				g_custom_teleport_service.delete_saved_location(category, deletion_telelocation.name);
-				deletion_telelocation.name = "";
-				ImGui::CloseCurrentPopup();
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("NO"_T.data()))
-			{
-				deletion_telelocation.name = "";
-				ImGui::CloseCurrentPopup();
-			}
-
-			ImGui::EndPopup();
-		}
-
-		ImGui::PushItemWidth(300);
-		components::input_text_with_hint("VIEW_SELF_ANIMATIONS_CATEGORY"_T, "VIEW_SELF_ANIMATIONS_CATEGORY_DESC"_T, category);
-		components::input_text_with_hint("VIEW_SELF_CUSTOM_TELEPORT_LOCATION"_T, "VIEW_SELF_CUSTOM_TELEPORT_LOCATION_DESC"_T, new_location_name);
-		ImGui::PopItemWidth();
-
-		components::button("VIEW_SELF_CUSTOM_TELEPORT_SAVE_CURRENT_LOCATION"_T, [] {
-			if (new_location_name.empty())
-			{
-				g_notification_service.push_warning("GUI_TAB_CUSTOM_TELEPORT"_T.data(), "VIEW_SELF_CUSTOM_TELEPORT_INVALID_NAME"_T.data());
-			}
-			else if (g_custom_teleport_service.get_saved_location_by_name(new_location_name))
-			{
-				g_notification_service.push_warning("GUI_TAB_CUSTOM_TELEPORT"_T.data(), std::vformat("VIEW_SELF_CUSTOM_TELEPORT_LOCATION_ALREADY_EXISTS"_T, std::make_format_args(new_location_name)));
-			}
-			else
-			{
-				telelocation teleport_location;
-				Entity teleport_entity = self::ped;
-				if (self::veh != 0)
-					teleport_entity = self::veh;
-				auto coords                  = ENTITY::GET_ENTITY_COORDS(teleport_entity, TRUE);
-				teleport_location.name       = new_location_name;
-				teleport_location.x          = coords.x;
-				teleport_location.y          = coords.y;
-				teleport_location.z          = coords.z;
-				teleport_location.yaw        = ENTITY::GET_ENTITY_HEADING(teleport_entity);
-				teleport_location.pitch      = CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH();
-				teleport_location.roll       = CAM::GET_GAMEPLAY_CAM_RELATIVE_HEADING();
-				g_custom_teleport_service.save_new_location(category, teleport_location);
-			}
-		});
-		ImGui::SameLine();
-		components::button("VIEW_SELF_CUSTOM_TELEPORT_SAVE_BLIP"_T, [] {
-			if (new_location_name.empty())
-			{
-				g_notification_service.push_warning("GUI_TAB_CUSTOM_TELEPORT"_T.data(), "VIEW_SELF_CUSTOM_TELEPORT_INVALID_NAME"_T.data());
-			}
-			else if (g_custom_teleport_service.get_saved_location_by_name(new_location_name))
-			{
-				g_notification_service.push_warning("GUI_TAB_CUSTOM_TELEPORT"_T.data(), std::vformat("VIEW_SELF_CUSTOM_TELEPORT_LOCATION_ALREADY_EXISTS"_T, std::make_format_args(new_location_name)));
-			}
-			else if (!*g_pointers->m_gta.m_is_session_started)
-			{
-				g_notification_service.push_warning("GUI_TAB_CUSTOM_TELEPORT"_T.data(), "TELEPORT_NOT_ONLINE"_T.data());
-				return;
-			}
-			else
-			{
-				telelocation teleport_location;
-				auto blip = blip::get_selected_blip();
-				if (blip == nullptr)
-				{
-					g_notification_service.push_warning("GUI_TAB_CUSTOM_TELEPORT"_T.data(), "VIEW_SELF_CUSTOM_TELEPORT_INVALID_BLIP"_T.data());
-					return;
-				}
-				teleport_location.name  = new_location_name;
-				teleport_location.x     = blip->m_position.x;
-				teleport_location.y     = blip->m_position.y;
-				teleport_location.z     = blip->m_position.z;
-				teleport_location.yaw   = blip->m_rotation;
-				teleport_location.pitch = 0.0f;
-				teleport_location.roll  = 0.0f;
-				g_custom_teleport_service.save_new_location(category, teleport_location);
-			}
-		});
-
-		ImGui::Separator();
-
-		components::small_text("VIEW_SELF_CUSTOM_TELEPORT_DOUBLE_CLICK_TO_TELEPORT"_T);
-		components::small_text("VIEW_SELF_ANIMATIONS_DOUBLE_SHIFT_CLICK_TO_DELETE"_T);
-
-		ImGui::Spacing();
-		components::input_text_with_hint("##filter", "SEARCH"_T, filter);
-
-		ImGui::BeginGroup();
-		components::small_text("VIEW_SELF_ANIMATIONS_CATEGORIES"_T);
-		if (ImGui::BeginListBox("##categories", {250, static_cast<float>(*g_pointers->m_gta.m_resolution_y * 0.5)}))
-		{
-			for (auto& l : g_custom_teleport_service.all_saved_locations | std::ranges::views::keys)
-			{
-				if (ImGui::Selectable(l.data(), l == category))
-				{
-					category = l;
-				}
-			}
-			ImGui::EndListBox();
-		}
-		ImGui::EndGroup();
-		ImGui::SameLine();
-		ImGui::BeginGroup();
-		components::small_text("VIEW_SELF_CUSTOM_TELEPORT_LOCATIONS"_T);
-		if (ImGui::BeginListBox("##telelocations", {250, static_cast<float>(*g_pointers->m_gta.m_resolution_y * 0.5)}))
-		{
-			if (g_custom_teleport_service.all_saved_locations.find(category)
-			    != g_custom_teleport_service.all_saved_locations.end())
-			{
-				std::vector<telelocation> current_list{};
-
-				if (!filter.empty())
-					current_list = g_custom_teleport_service.saved_locations_filtered_list(filter);
-				else
-					current_list = g_custom_teleport_service.all_saved_locations.at(category);
-
-				for (const auto& l : current_list)
-				{
-					if (ImGui::Selectable(l.name.data(), l.name == get_location_player_is_closest_to().name, ImGuiSelectableFlags_AllowDoubleClick))
-					{
-						if (GetAsyncKeyState(VK_SHIFT) & 0x8000)
-						{
-							deletion_telelocation = l;
-						}
-						else
-						{
-							if (ImGui::IsMouseDoubleClicked(0))
-							{
-								g_fiber_pool->queue_job([l] {
-									teleport::teleport_player_to_coords(g_player_service->get_self(), {l.x, l.y, l.z}, {l.yaw, l.pitch, l.roll});
-								});
-							}
-						}
-					}
-					if (ImGui::IsItemHovered())
-					{
-						ImGui::BeginTooltip();
-						if (l.name.length() > 27)
-							ImGui::Text(l.name.data());
-						ImGui::Text(std::format("{}: {}", "VIEW_SELF_CUSTOM_TELEPORT_DISTANCE"_T, get_distance_to_telelocation(l)).c_str());
-						ImGui::EndTooltip();
-					}
-				}
-			}
-
-			ImGui::EndListBox();
-		}
-
-		ImGui::EndGroup();
-
-		ImGui::EndGroup();
-	}
+#include <optional>
+namespace big {
+namespace {
+void QueuePlace(telelocation value){g_fiber_pool->queue_job([value]{if(!self::ped || !LocationBrowser::Finite(value))return;teleport::to_coords({value.x,value.y,value.z},{value.yaw,value.pitch,value.roll});});}
+}
+void view::custom_teleport(){
+ static std::string category="Default",name,filter;
+ static std::optional<telelocation> selected,deletion;
+ static std::string deletionCategory;
+ const auto saved=g_custom_teleport_service.snapshot();
+ if(!saved.empty() && saved.find(category)==saved.end()){category=saved.begin()->first;selected.reset();}
+ ImGui::TextWrapped("Select a location, then Teleport. Double-click also teleports.");
+ ImGui::TextUnformatted("Category");ImGui::SetNextItemWidth(-1);
+ if(ImGui::BeginCombo("##saved-category",category.c_str())){for(const auto& entry:saved)if(ImGui::Selectable(entry.first.c_str(),entry.first==category)){category=entry.first;selected.reset();}ImGui::EndCombo();}
+ ImGui::SetNextItemWidth(-1);components::input_text_with_hint("##saved-search","Search this category",filter);
+ if(ImGui::Button("Save current location...",{-1,28}))ImGui::OpenPopup("Save current location");
+ if(ImGui::BeginListBox("##saved-list",{-1,150})){auto it=saved.find(category);if(it!=saved.end())for(const auto& place:LocationBrowser::Filter(it->second,filter)){ImGui::PushID(place.name.c_str());if(ImGui::Selectable(place.name.c_str(),selected && selected->name==place.name,ImGuiSelectableFlags_AllowDoubleClick)){selected=place;if(ImGui::IsMouseDoubleClicked(0))QueuePlace(place);}ImGui::PopID();}ImGui::EndListBox();}
+ ImGui::BeginDisabled(!selected);if(ImGui::Button("Teleport",{-1,28})&&selected)QueuePlace(*selected);if(ImGui::Button("Delete...",{-1,28})&&selected){deletion=selected;deletionCategory=category;ImGui::OpenPopup("Delete saved location");}ImGui::EndDisabled();
+ if(ImGui::BeginPopupModal("Delete saved location",nullptr,ImGuiWindowFlags_AlwaysAutoResize)){if(deletion){ImGui::TextWrapped("Delete %s from %s?",deletion->name.c_str(),deletionCategory.c_str());if(ImGui::Button("Delete location")){const auto place=*deletion;const auto capturedCategory=deletionCategory;g_fiber_pool->queue_job([capturedCategory,place]{if(!g_custom_teleport_service.delete_saved_location(capturedCategory,place.name))g_notification_service.push_warning("Teleport","Location deletion failed.");});selected.reset();deletion.reset();ImGui::CloseCurrentPopup();}}ImGui::SameLine();if(ImGui::Button("Cancel")){deletion.reset();ImGui::CloseCurrentPopup();}ImGui::EndPopup();}
+ if(ImGui::BeginPopupModal("Save current location",nullptr,ImGuiWindowFlags_AlwaysAutoResize)){
+ components::input_text_with_hint("Category","Default",category);components::input_text_with_hint("Name","Location name",name);
+ auto save=[&](bool fromBlip){const auto capturedName=LocationBrowser::Trim(name),capturedCategory=LocationBrowser::Trim(category);
+ if(!LocationBrowser::ValidName(capturedName)||!LocationBrowser::ValidName(capturedCategory)){g_notification_service.push_warning("Teleport","Use a name/category of 1 to 64 bytes, without control characters or #.");return;}
+ category=capturedCategory;name=capturedName;selected.reset();
+ g_fiber_pool->queue_job([capturedName,capturedCategory,fromBlip]{telelocation place{};place.name=capturedName;
+ if(fromBlip){auto* b=blip::get_selected_blip();if(!b){g_notification_service.push_warning("Teleport","No selected blip.");return;}place.x=b->m_position.x;place.y=b->m_position.y;place.z=b->m_position.z;place.yaw=b->m_rotation;}
+ else {const auto entity=self::veh?self::veh:self::ped;if(!entity)return;const auto pos=ENTITY::GET_ENTITY_COORDS(entity,TRUE);place.x=pos.x;place.y=pos.y;place.z=pos.z;place.yaw=ENTITY::GET_ENTITY_HEADING(entity);place.pitch=CAM::GET_GAMEPLAY_CAM_RELATIVE_PITCH();place.roll=CAM::GET_GAMEPLAY_CAM_RELATIVE_HEADING();}
+ if(!LocationBrowser::Finite(place)||!g_custom_teleport_service.try_save_unique(capturedCategory,place))g_notification_service.push_warning("Teleport","Save failed, or that name already exists.");});ImGui::CloseCurrentPopup();};
+ if(ImGui::Button("Save"))save(false);ImGui::SameLine();if(ImGui::Button("Save selected blip"))save(true);if(ImGui::Button("Cancel"))ImGui::CloseCurrentPopup();ImGui::EndPopup();
+ }
+}
 }
