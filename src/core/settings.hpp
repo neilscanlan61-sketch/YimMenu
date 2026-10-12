@@ -935,11 +935,11 @@ namespace big
 
 		struct window
 		{
-			ImU32 background_color = 3696311571;
-			ImU32 text_color       = 4294967295;
-			ImU32 button_color     = 2947901213;
-			ImU32 frame_color      = 2942518340;
-			float gui_scale        = 1.f;
+			ImU32 background_color = IM_COL32(12, 6, 19, 247);
+			ImU32 text_color       = IM_COL32(240, 235, 255, 255);
+			ImU32 button_color     = IM_COL32(48, 19, 82, 255);
+			ImU32 frame_color      = IM_COL32(36, 17, 59, 255);
+			float gui_scale        = 0.90f;
 
 			ImFont* font_title     = nullptr;
 			ImFont* font_sub_title = nullptr;

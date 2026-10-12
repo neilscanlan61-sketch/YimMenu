@@ -15,10 +15,10 @@ namespace big
 		std::mutex m_update_lock;
 
 	public:
-		font_mgr(std::vector<std::pair<float, ImFont**>> extra_font_sizes = {{20.f, nullptr},
-					 {28.f, &g.window.font_title},
-		             {24.f, &g.window.font_sub_title},
-		             {18.f, &g.window.font_small}});
+		font_mgr(std::vector<std::pair<float, ImFont**>> extra_font_sizes = {{16.f, nullptr},
+					 {20.f, &g.window.font_title},
+		             {18.f, &g.window.font_sub_title},
+		             {14.f, &g.window.font_small}});
 		virtual ~font_mgr() = default;
 
 		bool can_use();

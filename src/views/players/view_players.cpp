@@ -37,7 +37,7 @@ namespace big
 		const auto window = ImGui::GetCurrentWindow();
 		ImGui::PushFont(g.window.font_icon);
 		const auto icons_size = ImGui::CalcTextSize(player_iconsc, player_icons_end);
-		const ImVec2 icons_pos(window->DC.CursorPos.x + 300.0f - 32.0f - icons_size.x, window->DC.CursorPos.y + 2.0f);
+		const ImVec2 icons_pos(window->Pos.x + window->Size.x - 16.f - icons_size.x, window->DC.CursorPos.y + 2.0f);
 		const ImRect icons_box(icons_pos, icons_pos + icons_size);
 		ImGui::PopFont();
 
@@ -54,9 +54,9 @@ namespace big
 		ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, {0.0, 0.5});
 		ImGui::PushID(plyr->id());
 
-		const auto style = ImGui::GetStyle();
+		// Fit each row to its containing list box.
 		// branchless conditional calculation
-		const auto plyr_btn_width = 300.f - (style.ItemInnerSpacing.x * 2) - (has_scrollbar * style.ScrollbarSize);
+		const auto plyr_btn_width = ImGui::GetContentRegionAvail().x;
 		if (ImGui::Button(plyr->get_name(), { plyr_btn_width, 0.f}))
 		{
 			g_player_service->set_selected(plyr);
@@ -97,27 +97,27 @@ namespace big
 
 		if (!*g_pointers->m_gta.m_is_session_started && player_count < 2)
 			return;
-		float window_pos = 110.f + g_gui_service->nav_ctr * ImGui::CalcTextSize("W").y
-		    + g_gui_service->nav_ctr * ImGui::GetStyle().ItemSpacing.y
-		    + g_gui_service->nav_ctr * ImGui::GetStyle().ItemInnerSpacing.y + ImGui::GetStyle().WindowPadding.y;
-
-		ImGui::SetNextWindowSize({300.f, 0.f});
-		ImGui::SetNextWindowPos({10.f, window_pos});
+        const float window_pos = 10.f + (
+#ifdef YIM_DEV
+            510.f
+#else
+            482.f
+#endif
+        ) * g.window.gui_scale;
+        const float available_height = ImGui::GetIO().DisplaySize.y - window_pos - 10.f;
+        if (available_height < 60.f)
+            return;
+        ImGui::SetNextWindowSize(ImVec2(200.f * g.window.gui_scale,
+            std::min(180.f * g.window.gui_scale, available_height)), ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ImVec2(10.f, window_pos), ImGuiCond_Always);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {2.0f, 2.0f});
 
 		if (ImGui::Begin("playerlist", nullptr, window_flags))
 		{
-			const auto style = ImGui::GetStyle();
-			float window_height = (
-				ImGui::CalcTextSize("A").y + style.FramePadding.y * 2.0f + style.ItemSpacing.y) // button size
-				* player_count // amount of players
-				+ (player_count > 1) * ((style.ItemSpacing.y * 2) + 1.f) // account for ImGui::Separator spacing
-				+ (player_count == 1) * 2.f; // some arbitrary height to make it fit
-			// used to account for scrollbar width
-			has_scrollbar = window_height + window_pos > (float)*g_pointers->m_gta.m_resolution_y - 10.f;
-
-			// basically whichever is smaller, the max available screenspace or the calculated window_height
-			window_height = has_scrollbar ? (float)*g_pointers->m_gta.m_resolution_y - (window_pos + 40.f) : window_height;
+			compact_ui::decorate_window();
+            const float window_height = ImGui::GetContentRegionAvail().y;
+            const float row_height = ImGui::GetFrameHeightWithSpacing();
+            has_scrollbar = row_height * static_cast<float>(player_count) > window_height;
 
 			ImGui::PushStyleColor(ImGuiCol_FrameBg, {0.f, 0.f, 0.f, 0.f});
 			ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, {0.f, 0.f, 0.f, 0.f});

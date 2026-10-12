@@ -1,0 +1,50 @@
+{
+  "src/gui/compact_theme.hpp": {
+    "original_sha256": null,
+    "updated_sha256": "06f7b61967d1cae852d5799e3ec0506e84ac117f15f657cae8ba19472b801f21"
+  },
+  "src/gui.cpp": {
+    "original_sha256": "5be6369bbe601592fb10092394ec5b0ee4680823c3932e1c4984c295990cc2f6",
+    "updated_sha256": "1c1fb931285c1fe25db41fce8045bac020a1ef546e4a7d22736815c9f4fcc25c"
+  },
+  "src/core/settings.hpp": {
+    "original_sha256": "6aeaeac050c5a496f078fca45486ce7a97fc5c33b6adaf56d86c9f7d904f12df",
+    "updated_sha256": "e9313eb8ab371bf8d29f0c45cb544aee3029d4dd4633873c5e264cc310028ff8"
+  },
+  "src/renderer/font_mgr.hpp": {
+    "original_sha256": "50c095a7b507ffe828c3bdc7ed3c232f123796e7136b7ab70ae6ab2d05f3cf0a",
+    "updated_sha256": "cc236741680375d98fabf0dc58dc4143b75cd5f222f2f9bd6e893a73b4b5a80c"
+  },
+  "src/gui/components/components.hpp": {
+    "original_sha256": "6f4cbe8f775d52ec1fcbf08c70f1d05d4aa3ce849df14fdde9bdf68e9a859be6",
+    "updated_sha256": "792f3b29094901950bbd4768acdd1d2b2caa6759b0170ee1877923ca9ece14b9"
+  },
+  "src/gui/components/nav_button.cpp": {
+    "original_sha256": "21bcd38f0ac418c811ea98288cde11bc2b8f11f536f6b8aae303fe42fa8a8708",
+    "updated_sha256": "980519327db41aa0970f60e70079375bf446cf23acb3981bbb2aa42a0d1e31ee"
+  },
+  "src/gui/components/nav_item.cpp": {
+    "original_sha256": "aa0ba78c0340afaa2ef7b3f7755ff3060bf45f4835ac1eb5d25fdca08d5b5e3a",
+    "updated_sha256": "a1542b2668dfd7a4156e188103a364e9421bebebc9b8ae6bffc363417a7d7445"
+  },
+  "src/views/core/view_heading.cpp": {
+    "original_sha256": "76e2e7ad959667aabff94b6b2a6517aec86b114329ab07bceba1019a98da4074",
+    "updated_sha256": "0544ef12901a4a12edf7c997871a3ad4a70831511b4e090e83c05e1374e725db"
+  },
+  "src/views/core/view_navigation.cpp": {
+    "original_sha256": "9b56f3f5b556a159ccb2cca2559763723bffa9080d35bc02c993aad30ef5329d",
+    "updated_sha256": "894e3c3ba534916ca04be238c8c873477a9a3caccc786c17e99a822fbb4ab8e9"
+  },
+  "src/views/core/view_active_view.cpp": {
+    "original_sha256": "ddc8c579a02ab90325f8794bdd6ee0b44b352414c02fb0fedc5ec9edd9574607",
+    "updated_sha256": "cdbb633325adcdb931742260399a2bddb04c882a3101e9b835ef5a25205c5cf1"
+  },
+  "src/views/players/view_players.cpp": {
+    "original_sha256": "2dda99af96426f81213b752c1e379f15a8c1b153d8071832608d865f0ca10652",
+    "updated_sha256": "4cb3528a650942dfe88cfe99a3e2d55e9dd705159e0159eb389d2861abeb55b6"
+  },
+  "src/views/settings/view_gui_settings.cpp": {
+    "original_sha256": "7a8887a136aedcc2dee07819852599181e1dca0736be2af29bd2ca0662280b48",
+    "updated_sha256": "4662bc0bb094a9e6df57df73a0d6988da662e10b152f4d2b520d0f6b86419b7a"
+  }
+}

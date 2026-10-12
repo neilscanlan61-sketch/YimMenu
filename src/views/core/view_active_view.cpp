@@ -19,14 +19,24 @@ namespace big
 
 		constexpr float alpha = 1.f;
 
-		ImGui::SetNextWindowPos({(300.f + 20.f) * g.window.gui_scale, 100.f * g.window.gui_scale}, ImGuiCond_Always);
-		ImGui::SetNextWindowSize({0.f, 0.f});
-		ImGui::SetNextWindowSizeConstraints({300.f, 100.f},
-		    {(float)*g_pointers->m_gta.m_resolution_x - 270.f, (float)*g_pointers->m_gta.m_resolution_y - 110.f});
+        const float scale = g.window.gui_scale;
+        const auto display = ImGui::GetIO().DisplaySize;
+        const float x = 20.f + 200.f * scale;
+        const float y = 10.f + (
+#ifdef YIM_DEV
+            102.f
+#else
+            74.f
+#endif
+        ) * scale;
+        ImGui::SetNextWindowPos(ImVec2(x, y), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(std::max(80.f, std::min(640.f * scale, display.x - x - 10.f)),
+            std::max(80.f, std::min(400.f * scale, display.y - y - 10.f))), ImGuiCond_Always);
 
 
-		if (ImGui::Begin("main", nullptr, window_flags))
+		if (ImGui::Begin("main", nullptr, window_flags | ImGuiWindowFlags_HorizontalScrollbar))
 		{
+			compact_ui::decorate_window();
 			const char* key = nullptr;
 			if (key = g_translation_service.get_translation(selected->hash).data(); !key)
 				key = selected->name;

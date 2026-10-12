@@ -1,0 +1,622 @@
+diff --git a/src/core/settings.hpp b/src/core/settings.hpp
+index bfd0b1c..f5eca31 100644
+--- a/src/core/settings.hpp
++++ b/src/core/settings.hpp
+@@ -935,11 +935,11 @@ namespace big
+ 
+ 		struct window
+ 		{
+-			ImU32 background_color = 3696311571;
+-			ImU32 text_color       = 4294967295;
+-			ImU32 button_color     = 2947901213;
+-			ImU32 frame_color      = 2942518340;
+-			float gui_scale        = 1.f;
++			ImU32 background_color = IM_COL32(12, 6, 19, 247);
++			ImU32 text_color       = IM_COL32(240, 235, 255, 255);
++			ImU32 button_color     = IM_COL32(48, 19, 82, 255);
++			ImU32 frame_color      = IM_COL32(36, 17, 59, 255);
++			float gui_scale        = 0.90f;
+ 
+ 			ImFont* font_title     = nullptr;
+ 			ImFont* font_sub_title = nullptr;
+diff --git a/src/gui.cpp b/src/gui.cpp
+index 742ebcd..6f44d3c 100644
+--- a/src/gui.cpp
++++ b/src/gui.cpp
+@@ -1,4 +1,5 @@
+ #include "gui.hpp"
++#include "gui/compact_theme.hpp"
+ 
+ #include "lua/lua_manager.hpp"
+ #include "natives.hpp"
+@@ -107,62 +108,7 @@ namespace big
+ 
+ 	void gui::dx_init()
+ 	{
+-		static auto bgColor     = ImVec4(0.09f, 0.094f, 0.129f, .9f);
+-		static auto primary     = ImVec4(0.172f, 0.380f, 0.909f, 1.f);
+-		static auto secondary   = ImVec4(0.443f, 0.654f, 0.819f, 1.f);
+-		static auto whiteBroken = ImVec4(0.792f, 0.784f, 0.827f, 1.f);
+-
+-		auto& style             = ImGui::GetStyle();
+-		style.WindowPadding     = ImVec2(15, 15);
+-		style.WindowRounding    = 10.f;
+-		style.WindowBorderSize  = 0.f;
+-		style.FramePadding      = ImVec2(5, 5);
+-		style.FrameRounding     = 4.0f;
+-		style.ItemSpacing       = ImVec2(12, 8);
+-		style.ItemInnerSpacing  = ImVec2(8, 6);
+-		style.IndentSpacing     = 25.0f;
+-		style.ScrollbarSize     = 15.0f;
+-		style.ScrollbarRounding = 9.0f;
+-		style.GrabMinSize       = 5.0f;
+-		style.GrabRounding      = 3.0f;
+-		style.ChildRounding     = 4.0f;
+-
+-		auto& colors                          = style.Colors;
+-		colors[ImGuiCol_Text]                 = ImGui::ColorConvertU32ToFloat4(g.window.text_color);
+-		colors[ImGuiCol_TextDisabled]         = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+-		colors[ImGuiCol_WindowBg]             = ImGui::ColorConvertU32ToFloat4(g.window.background_color);
+-		colors[ImGuiCol_ChildBg]              = ImGui::ColorConvertU32ToFloat4(g.window.background_color);
+-		colors[ImGuiCol_PopupBg]              = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+-		colors[ImGuiCol_Border]               = ImVec4(0.80f, 0.80f, 0.83f, 0.88f);
+-		colors[ImGuiCol_BorderShadow]         = ImVec4(0.92f, 0.91f, 0.88f, 0.00f);
+-		colors[ImGuiCol_FrameBg]              = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+-		colors[ImGuiCol_FrameBgHovered]       = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+-		colors[ImGuiCol_FrameBgActive]        = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+-		colors[ImGuiCol_TitleBg]              = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+-		colors[ImGuiCol_TitleBgCollapsed]     = ImVec4(1.00f, 0.98f, 0.95f, 0.75f);
+-		colors[ImGuiCol_TitleBgActive]        = ImVec4(0.07f, 0.07f, 0.09f, 1.00f);
+-		colors[ImGuiCol_MenuBarBg]            = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+-		colors[ImGuiCol_ScrollbarBg]          = ImVec4(0.10f, 0.09f, 0.12f, 1.00f);
+-		colors[ImGuiCol_ScrollbarGrab]        = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+-		colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+-		colors[ImGuiCol_ScrollbarGrabActive]  = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+-		colors[ImGuiCol_CheckMark]            = ImVec4(1.00f, 0.98f, 0.95f, 0.61f);
+-		colors[ImGuiCol_SliderGrab]           = ImVec4(0.80f, 0.80f, 0.83f, 0.31f);
+-		colors[ImGuiCol_SliderGrabActive]     = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+-		colors[ImGuiCol_Button]               = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+-		colors[ImGuiCol_ButtonHovered]        = ImVec4(0.24f, 0.23f, 0.29f, 1.00f);
+-		colors[ImGuiCol_ButtonActive]         = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+-		colors[ImGuiCol_Header]               = ImVec4(0.30f, 0.29f, 0.32f, 1.00f);
+-		colors[ImGuiCol_HeaderHovered]        = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+-		colors[ImGuiCol_HeaderActive]         = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+-		colors[ImGuiCol_ResizeGrip]           = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);
+-		colors[ImGuiCol_ResizeGripHovered]    = ImVec4(0.56f, 0.56f, 0.58f, 1.00f);
+-		colors[ImGuiCol_ResizeGripActive]     = ImVec4(0.06f, 0.05f, 0.07f, 1.00f);
+-		colors[ImGuiCol_PlotLines]            = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+-		colors[ImGuiCol_PlotLinesHovered]     = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+-		colors[ImGuiCol_PlotHistogram]        = ImVec4(0.40f, 0.39f, 0.38f, 0.63f);
+-		colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.25f, 1.00f, 0.00f, 1.00f);
+-		colors[ImGuiCol_TextSelectedBg]       = ImVec4(0.25f, 1.00f, 0.00f, 0.43f);
++		compact_ui::apply_style();
+ 
+ 		save_default_style();
+ 	}
+@@ -191,16 +137,17 @@ namespace big
+ 	{
+ 		auto button_color = ImGui::ColorConvertU32ToFloat4(g.window.button_color);
+ 		auto button_active_color =
+-		    ImVec4(button_color.x + 0.33f, button_color.y + 0.33f, button_color.z + 0.33f, button_color.w);
++		    ImVec4(std::min(button_color.x + 0.33f, 1.f), std::min(button_color.y + 0.33f, 1.f), std::min(button_color.z + 0.33f, 1.f), button_color.w);
+ 		auto button_hovered_color =
+-		    ImVec4(button_color.x + 0.15f, button_color.y + 0.15f, button_color.z + 0.15f, button_color.w);
++		    ImVec4(std::min(button_color.x + 0.15f, 1.f), std::min(button_color.y + 0.15f, 1.f), std::min(button_color.z + 0.15f, 1.f), button_color.w);
+ 		auto frame_color = ImGui::ColorConvertU32ToFloat4(g.window.frame_color);
+ 		auto frame_hovered_color =
+-		    ImVec4(frame_color.x + 0.14f, frame_color.y + 0.14f, frame_color.z + 0.14f, button_color.w);
++		    ImVec4(std::min(frame_color.x + 0.14f, 1.f), std::min(frame_color.y + 0.14f, 1.f), std::min(frame_color.z + 0.14f, 1.f), button_color.w);
+ 		auto frame_active_color =
+-		    ImVec4(frame_color.x + 0.30f, frame_color.y + 0.30f, frame_color.z + 0.30f, button_color.w);
++		    ImVec4(std::min(frame_color.x + 0.30f, 1.f), std::min(frame_color.y + 0.30f, 1.f), std::min(frame_color.z + 0.30f, 1.f), button_color.w);
+ 
+ 		ImGui::PushStyleColor(ImGuiCol_WindowBg, ImGui::ColorConvertU32ToFloat4(g.window.background_color));
++		ImGui::PushStyleColor(ImGuiCol_ChildBg, ImGui::ColorConvertU32ToFloat4(g.window.background_color));
+ 		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::ColorConvertU32ToFloat4(g.window.text_color));
+ 		ImGui::PushStyleColor(ImGuiCol_Button, button_color);
+ 		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, button_hovered_color);
+@@ -212,7 +159,7 @@ namespace big
+ 
+ 	void gui::pop_theme_colors()
+ 	{
+-		ImGui::PopStyleColor(8);
++		ImGui::PopStyleColor(9);
+ 	}
+ 
+ 	void gui::script_on_tick()
+diff --git a/src/gui/compact_theme.hpp b/src/gui/compact_theme.hpp
+new file mode 100644
+index 0000000..fc662fe
+--- /dev/null
++++ b/src/gui/compact_theme.hpp
+@@ -0,0 +1,109 @@
++#pragma once
++#include <imgui.h>
++#include <cstring>
++
++// Visual-only helpers. No game, networking, or hook dependencies.
++namespace big::compact_ui
++{
++    inline void apply_style()
++    {
++        ImGui::StyleColorsDark();
++        auto& s = ImGui::GetStyle();
++        s.WindowPadding = ImVec2(10, 10);
++        s.WindowRounding = 8;
++        s.WindowBorderSize = 1;
++        s.ChildRounding = 6;
++        s.ChildBorderSize = 1;
++        s.FramePadding = ImVec2(6, 3);
++        s.FrameRounding = 4;
++        s.FrameBorderSize = 0;
++        s.ItemSpacing = ImVec2(8, 5);
++        s.ItemInnerSpacing = ImVec2(5, 4);
++        s.IndentSpacing = 12;
++        s.ScrollbarSize = 8;
++        s.ScrollbarRounding = 4;
++        s.GrabMinSize = 8;
++        s.GrabRounding = 4;
++        s.PopupRounding = 6;
++        s.TabRounding = 4;
++        auto* c = s.Colors;
++        c[ImGuiCol_Text] = ImVec4(.94f, .92f, 1.f, 1.f);
++        c[ImGuiCol_TextDisabled] = ImVec4(.65f, .61f, .74f, 1.f);
++        c[ImGuiCol_WindowBg] = ImVec4(.045f, .025f, .075f, .97f);
++        c[ImGuiCol_ChildBg] = ImVec4(.055f, .03f, .085f, .96f);
++        c[ImGuiCol_PopupBg] = ImVec4(.065f, .035f, .10f, .99f);
++        c[ImGuiCol_Border] = ImVec4(.42f, .20f, .65f, .85f);
++        c[ImGuiCol_BorderShadow] = ImVec4(0, 0, 0, 0);
++        c[ImGuiCol_FrameBg] = ImVec4(.14f, .065f, .23f, 1);
++        c[ImGuiCol_FrameBgHovered] = ImVec4(.25f, .12f, .40f, 1);
++        c[ImGuiCol_FrameBgActive] = ImVec4(.36f, .18f, .56f, 1);
++        c[ImGuiCol_TitleBg] = c[ImGuiCol_WindowBg];
++        c[ImGuiCol_TitleBgActive] = ImVec4(.13f, .055f, .22f, 1);
++        c[ImGuiCol_TitleBgCollapsed] = c[ImGuiCol_WindowBg];
++        c[ImGuiCol_MenuBarBg] = c[ImGuiCol_WindowBg];
++        c[ImGuiCol_Button] = ImVec4(.19f, .075f, .32f, 1);
++        c[ImGuiCol_ButtonHovered] = ImVec4(.32f, .14f, .51f, 1);
++        c[ImGuiCol_ButtonActive] = ImVec4(.43f, .20f, .65f, 1);
++        c[ImGuiCol_Header] = ImVec4(.24f, .10f, .39f, 1);
++        c[ImGuiCol_HeaderHovered] = ImVec4(.34f, .15f, .53f, 1);
++        c[ImGuiCol_HeaderActive] = ImVec4(.44f, .20f, .66f, 1);
++        c[ImGuiCol_CheckMark] = ImVec4(.78f, .50f, 1, 1);
++        c[ImGuiCol_SliderGrab] = ImVec4(.57f, .29f, .86f, 1);
++        c[ImGuiCol_SliderGrabActive] = ImVec4(.79f, .54f, 1, 1);
++        c[ImGuiCol_ScrollbarBg] = ImVec4(.04f, .025f, .06f, .5f);
++        c[ImGuiCol_ScrollbarGrab] = ImVec4(.31f, .16f, .47f, 1);
++        c[ImGuiCol_ScrollbarGrabHovered] = ImVec4(.46f, .23f, .69f, 1);
++        c[ImGuiCol_ScrollbarGrabActive] = ImVec4(.61f, .33f, .88f, 1);
++        c[ImGuiCol_Separator] = c[ImGuiCol_Border];
++        c[ImGuiCol_SeparatorHovered] = c[ImGuiCol_SliderGrab];
++        c[ImGuiCol_SeparatorActive] = c[ImGuiCol_SliderGrabActive];
++        c[ImGuiCol_Tab] = c[ImGuiCol_Button];
++        c[ImGuiCol_TabHovered] = c[ImGuiCol_ButtonHovered];
++        c[ImGuiCol_TabActive] = c[ImGuiCol_ButtonActive];
++        c[ImGuiCol_TextSelectedBg] = ImVec4(.46f, .21f, .72f, .5f);
++        c[ImGuiCol_NavHighlight] = c[ImGuiCol_CheckMark];
++        c[ImGuiCol_ResizeGrip] = ImVec4(0, 0, 0, 0);
++        c[ImGuiCol_ResizeGripHovered] = c[ImGuiCol_SliderGrab];
++        c[ImGuiCol_ResizeGripActive] = c[ImGuiCol_SliderGrabActive];
++    }
++
++    // Draw inside the window's clip rectangle; no foreground overlap with controls.
++    inline void decorate_window()
++    {
++        const auto p = ImGui::GetWindowPos();
++        const auto size = ImGui::GetWindowSize();
++        auto* d = ImGui::GetWindowDrawList();
++        const float y = p.y + 2;
++        for (int i = 5; i >= 1; --i)
++            d->AddLine(ImVec2(p.x + 8, y), ImVec2(p.x + size.x - 8, y),
++                IM_COL32(164, 77, 255, 14), static_cast<float>(i * 2));
++        d->AddLine(ImVec2(p.x + 8, y), ImVec2(p.x + size.x - 8, y),
++            IM_COL32(209, 154, 255, 235), 1);
++    }
++
++    inline bool toggle(const char* label, bool* value)
++    {
++        const float h = ImGui::GetFrameHeight();
++        const float w = h * 1.65f;
++        const float radius = h * .5f;
++        const auto p = ImGui::GetCursorScreenPos();
++        const auto label_size = ImGui::CalcTextSize(label, nullptr, true);
++        const float gap = label_size.x > 0 ? ImGui::GetStyle().ItemInnerSpacing.x : 0;
++        const bool pressed = ImGui::InvisibleButton(label, ImVec2(w + gap + label_size.x, h));
++        if (pressed) *value = !*value;
++        auto* d = ImGui::GetWindowDrawList();
++        const auto bg = ImGui::GetColorU32(*value ? ImGuiCol_SliderGrab :
++            (ImGui::IsItemHovered() ? ImGuiCol_FrameBgHovered : ImGuiCol_FrameBg));
++        d->AddRectFilled(p, ImVec2(p.x + w, p.y + h), bg, radius);
++        d->AddRect(p, ImVec2(p.x + w, p.y + h), ImGui::GetColorU32(ImGuiCol_Border), radius);
++        d->AddCircleFilled(ImVec2(p.x + (*value ? w - radius : radius), p.y + radius),
++            radius - 3.f, ImGui::GetColorU32(ImGuiCol_Text));
++        if (label_size.x > 0)
++        {
++            const char* end = std::strstr(label, "##");
++            d->AddText(ImVec2(p.x + w + gap, p.y + (h - label_size.y) * .5f),
++                ImGui::GetColorU32(ImGuiCol_Text), label, end);
++        }
++        return pressed;
++    }
++}
+diff --git a/src/gui/components/components.hpp b/src/gui/components/components.hpp
+index b53ae61..0911b2d 100644
+--- a/src/gui/components/components.hpp
++++ b/src/gui/components/components.hpp
+@@ -1,4 +1,5 @@
+ #pragma once
++#include "gui/compact_theme.hpp"
+ #include "backend/command.hpp"
+ #include "backend/float_command.hpp"
+ #include "backend/int_command.hpp"
+@@ -78,7 +79,7 @@ namespace big
+ 			}
+ 
+ 			bool updated;
+-			if (updated = ImGui::Checkbox(label_override.value_or(command->get_label()).data(), &command->is_enabled()))
++			if (updated = compact_ui::toggle(label_override.value_or(command->get_label()).data(), &command->is_enabled()))
+ 				command->refresh();
+ 			if (ImGui::IsItemHovered() && !command->get_description().empty())
+ 				ImGui::SetTooltip(command->get_description().c_str());
+diff --git a/src/gui/components/nav_button.cpp b/src/gui/components/nav_button.cpp
+index 4d04b0d..61f8909 100644
+--- a/src/gui/components/nav_button.cpp
++++ b/src/gui/components/nav_button.cpp
+@@ -1,21 +1,15 @@
+ #include "gui/components/components.hpp"
+-#include "pointers.hpp"
+ 
+ namespace big
+ {
+-	bool components::nav_button(const std::string_view text)
+-	{
+-		ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.f, 0.f, 0.f, 0.f));
+-		ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.f, 0.f, 0.f, 0.f));
+-		ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.f, 0.f, 0.f, 0.f));
+-		ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, {0.f, 0.5f});
+-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, {0, 5});
+-		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {0, 2});
+-		ImGui::PushStyleVar(ImGuiStyleVar_ItemInnerSpacing, {0, 0});
+-		bool result = ImGui::Button(text.data(), {((float)*g_pointers->m_gta.m_resolution_x * 0.15f) - 30, 0});
+-		ImGui::PopStyleVar(4);
+-		ImGui::PopStyleColor(3);
+-
+-		return result;
+-	}
+-}
+\ No newline at end of file
++    bool components::nav_button(const std::string_view text)
++    {
++        ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0.f, 0.5f));
++        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(6, 3));
++        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 3));
++        // Available width, not a percentage of game resolution.
++        const bool result = ImGui::Button(text.data(), ImVec2(ImGui::GetContentRegionAvail().x, 0));
++        ImGui::PopStyleVar(3);
++        return result;
++    }
++}
+diff --git a/src/gui/components/nav_item.cpp b/src/gui/components/nav_item.cpp
+index d6a3e8c..be31667 100644
+--- a/src/gui/components/nav_item.cpp
++++ b/src/gui/components/nav_item.cpp
+@@ -4,41 +4,33 @@
+ 
+ namespace big
+ {
+-	void components::nav_item(std::pair<tabs, navigation_struct>& navItem, int nested)
+-	{
+-		const bool current_tab =
+-			!g_gui_service->get_selected_tab().empty() &&
+-			g_gui_service->get_selected_tab().size() > nested &&
+-			navItem.first == g_gui_service->get_selected_tab().at(nested);
+-
+-
+-		if (current_tab)
+-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.29f, 0.45f, 0.69f, 1.f));
+-
+-		const char* key = nullptr;
+-		if (key = g_translation_service.get_translation(navItem.second.name).data(); !key)
+-			key = navItem.second.name;
+-		if (components::nav_button(key))
+-			g_gui_service->set_selected(navItem.first);
+-
+-		if (current_tab)
+-			ImGui::PopStyleColor();
+-
+-		if (current_tab && !navItem.second.sub_nav.empty())
+-		{
+-			ImDrawList* draw_list = ImGui::GetForegroundDrawList();
+-
+-			for (std::pair<tabs, navigation_struct> item : navItem.second.sub_nav)
+-			{
+-				draw_list->AddRectFilled({10.f, ImGui::GetCursorPosY() + (100.f * g.window.gui_scale)},
+-				    {(10.f + (300.f * g.window.gui_scale)),
+-				        (ImGui::GetCursorPosY() + (100.f * (g.window.gui_scale)) + ImGui::CalcTextSize("A").y
+-				            + (ImGui::GetStyle().ItemInnerSpacing.y / g.window.gui_scale) * 2)},
+-				    ImGui::ColorConvertFloat4ToU32({1.f, 1.f, 1.f, .15f + (.075f * nested)}));
+-				nav_item(item, nested + 1);
+-			}
+-		}
+-
+-		g_gui_service->increment_nav_size();
+-	}
++    void components::nav_item(std::pair<tabs, navigation_struct>& navItem, int nested)
++    {
++        const auto& path = g_gui_service->get_selected_tab();
++        const bool current_tab = nested >= 0 && path.size() > static_cast<size_t>(nested)
++            && navItem.first == path.at(nested);
++        ImGui::PushID(static_cast<int>(navItem.first));
++        if (current_tab)
++        {
++            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(.35f, .14f, .55f, 1));
++            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1, .94f, 1, 1));
++        }
++        else
++            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0, 0, 0, 0));
++        const char* key = g_translation_service.get_translation(navItem.second.name).data();
++        if (!key) key = navItem.second.name;
++        if (components::nav_button(key))
++            g_gui_service->set_selected(navItem.first);
++        ImGui::PopStyleColor(current_tab ? 2 : 1);
++        // Layout-local indentation replaces hardcoded screen-space rectangles.
++        if (current_tab && !navItem.second.sub_nav.empty())
++        {
++            ImGui::Indent();
++            for (std::pair<tabs, navigation_struct> item : navItem.second.sub_nav)
++                nav_item(item, nested + 1);
++            ImGui::Unindent();
++        }
++        ImGui::PopID();
++        g_gui_service->increment_nav_size();
++    }
+ }
+diff --git a/src/renderer/font_mgr.hpp b/src/renderer/font_mgr.hpp
+index 45cd704..0a5f35e 100644
+--- a/src/renderer/font_mgr.hpp
++++ b/src/renderer/font_mgr.hpp
+@@ -15,10 +15,10 @@ namespace big
+ 		std::mutex m_update_lock;
+ 
+ 	public:
+-		font_mgr(std::vector<std::pair<float, ImFont**>> extra_font_sizes = {{20.f, nullptr},
+-					 {28.f, &g.window.font_title},
+-		             {24.f, &g.window.font_sub_title},
+-		             {18.f, &g.window.font_small}});
++		font_mgr(std::vector<std::pair<float, ImFont**>> extra_font_sizes = {{16.f, nullptr},
++					 {20.f, &g.window.font_title},
++		             {18.f, &g.window.font_sub_title},
++		             {14.f, &g.window.font_small}});
+ 		virtual ~font_mgr() = default;
+ 
+ 		bool can_use();
+diff --git a/src/views/core/view_active_view.cpp b/src/views/core/view_active_view.cpp
+index 6fa3057..ee36ee6 100644
+--- a/src/views/core/view_active_view.cpp
++++ b/src/views/core/view_active_view.cpp
+@@ -19,14 +19,24 @@ namespace big
+ 
+ 		constexpr float alpha = 1.f;
+ 
+-		ImGui::SetNextWindowPos({(300.f + 20.f) * g.window.gui_scale, 100.f * g.window.gui_scale}, ImGuiCond_Always);
+-		ImGui::SetNextWindowSize({0.f, 0.f});
+-		ImGui::SetNextWindowSizeConstraints({300.f, 100.f},
+-		    {(float)*g_pointers->m_gta.m_resolution_x - 270.f, (float)*g_pointers->m_gta.m_resolution_y - 110.f});
++        const float scale = g.window.gui_scale;
++        const auto display = ImGui::GetIO().DisplaySize;
++        const float x = 20.f + 200.f * scale;
++        const float y = 10.f + (
++#ifdef YIM_DEV
++            102.f
++#else
++            74.f
++#endif
++        ) * scale;
++        ImGui::SetNextWindowPos(ImVec2(x, y), ImGuiCond_Always);
++        ImGui::SetNextWindowSize(ImVec2(std::max(80.f, std::min(640.f * scale, display.x - x - 10.f)),
++            std::max(80.f, std::min(400.f * scale, display.y - y - 10.f))), ImGuiCond_Always);
+ 
+ 
+-		if (ImGui::Begin("main", nullptr, window_flags))
++		if (ImGui::Begin("main", nullptr, window_flags | ImGuiWindowFlags_HorizontalScrollbar))
+ 		{
++			compact_ui::decorate_window();
+ 			const char* key = nullptr;
+ 			if (key = g_translation_service.get_translation(selected->hash).data(); !key)
+ 				key = selected->name;
+diff --git a/src/views/core/view_heading.cpp b/src/views/core/view_heading.cpp
+index 19510a1..5ed2f01 100644
+--- a/src/views/core/view_heading.cpp
++++ b/src/views/core/view_heading.cpp
+@@ -5,23 +5,26 @@ namespace big
+ {
+ 	void view::heading()
+ 	{
+-		ImGui::SetNextWindowSize({300.f * g.window.gui_scale, 80.f * g.window.gui_scale});
++		ImGui::SetNextWindowSize({200.f * g.window.gui_scale,
++#ifdef YIM_DEV
++            94.f * g.window.gui_scale
++#else
++            66.f * g.window.gui_scale
++#endif
++        });
+ 		ImGui::SetNextWindowPos({10.f, 10.f});
+ 		if (ImGui::Begin("menu_heading", nullptr, window_flags | ImGuiWindowFlags_NoScrollbar))
+ 		{
++			compact_ui::decorate_window();
+ 			ImGui::BeginGroup();
+ 			ImGui::Text("HEADING_WELCOME"_T.data());
+-			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.172f, 0.380f, 0.909f, 1.f));
++			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(.78f, .50f, 1.f, 1.f));
+ 			ImGui::Text(g_local_player == nullptr || g_local_player->m_player_info == nullptr ?
+ 			        "UNKNOWN_USERNAME"_T.data() :
+ 			        g_local_player->m_player_info->m_net_player_data.m_name);
+ 			ImGui::PopStyleColor();
+ 			ImGui::EndGroup();
+ #ifdef YIM_DEV
+-			ImGui::SameLine();
+-			ImGui::SetCursorPos(
+-			    {(300.f * g.window.gui_scale) - ImGui::CalcTextSize("UNLOAD"_T.data()).x - ImGui::GetStyle().ItemSpacing.x,
+-			        ImGui::GetStyle().WindowPadding.y / 2 + ImGui::GetStyle().ItemSpacing.y + (ImGui::CalcTextSize("W").y / 2)});
+ 			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.69f, 0.29f, 0.29f, 1.00f));
+ 			if (components::nav_button("UNLOAD"_T))
+ 			{
+diff --git a/src/views/core/view_navigation.cpp b/src/views/core/view_navigation.cpp
+index ebe1323..cb125a0 100644
+--- a/src/views/core/view_navigation.cpp
++++ b/src/views/core/view_navigation.cpp
+@@ -5,11 +5,18 @@ namespace big
+ {
+ 	void view::navigation()
+ 	{
+-		ImGui::SetNextWindowPos({10.f, 100.f * g.window.gui_scale}, ImGuiCond_Always);
+-		ImGui::SetNextWindowSize({300.f * g.window.gui_scale, 0.f}, ImGuiCond_Always);
++		ImGui::SetNextWindowPos({10.f, 10.f + (
++#ifdef YIM_DEV
++            102.f
++#else
++            74.f
++#endif
++        ) * g.window.gui_scale}, ImGuiCond_Always);
++		ImGui::SetNextWindowSize({200.f * g.window.gui_scale, 400.f * g.window.gui_scale}, ImGuiCond_Always);
+ 
+ 		if (ImGui::Begin("navigation", 0, window_flags))
+ 		{
++			compact_ui::decorate_window();
+ 			g_gui_service->reset_nav_size();
+ 			for (std::pair<tabs, navigation_struct> nav_item : g_gui_service->get_navigation())
+ 			{
+diff --git a/src/views/players/view_players.cpp b/src/views/players/view_players.cpp
+index 6eae9f2..56c9dd9 100644
+--- a/src/views/players/view_players.cpp
++++ b/src/views/players/view_players.cpp
+@@ -37,7 +37,7 @@ namespace big
+ 		const auto window = ImGui::GetCurrentWindow();
+ 		ImGui::PushFont(g.window.font_icon);
+ 		const auto icons_size = ImGui::CalcTextSize(player_iconsc, player_icons_end);
+-		const ImVec2 icons_pos(window->DC.CursorPos.x + 300.0f - 32.0f - icons_size.x, window->DC.CursorPos.y + 2.0f);
++		const ImVec2 icons_pos(window->Pos.x + window->Size.x - 16.f - icons_size.x, window->DC.CursorPos.y + 2.0f);
+ 		const ImRect icons_box(icons_pos, icons_pos + icons_size);
+ 		ImGui::PopFont();
+ 
+@@ -54,9 +54,9 @@ namespace big
+ 		ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, {0.0, 0.5});
+ 		ImGui::PushID(plyr->id());
+ 
+-		const auto style = ImGui::GetStyle();
++		// Fit each row to its containing list box.
+ 		// branchless conditional calculation
+-		const auto plyr_btn_width = 300.f - (style.ItemInnerSpacing.x * 2) - (has_scrollbar * style.ScrollbarSize);
++		const auto plyr_btn_width = ImGui::GetContentRegionAvail().x;
+ 		if (ImGui::Button(plyr->get_name(), { plyr_btn_width, 0.f}))
+ 		{
+ 			g_player_service->set_selected(plyr);
+@@ -97,27 +97,27 @@ namespace big
+ 
+ 		if (!*g_pointers->m_gta.m_is_session_started && player_count < 2)
+ 			return;
+-		float window_pos = 110.f + g_gui_service->nav_ctr * ImGui::CalcTextSize("W").y
+-		    + g_gui_service->nav_ctr * ImGui::GetStyle().ItemSpacing.y
+-		    + g_gui_service->nav_ctr * ImGui::GetStyle().ItemInnerSpacing.y + ImGui::GetStyle().WindowPadding.y;
+-
+-		ImGui::SetNextWindowSize({300.f, 0.f});
+-		ImGui::SetNextWindowPos({10.f, window_pos});
++        const float window_pos = 10.f + (
++#ifdef YIM_DEV
++            510.f
++#else
++            482.f
++#endif
++        ) * g.window.gui_scale;
++        const float available_height = ImGui::GetIO().DisplaySize.y - window_pos - 10.f;
++        if (available_height < 60.f)
++            return;
++        ImGui::SetNextWindowSize(ImVec2(200.f * g.window.gui_scale,
++            std::min(180.f * g.window.gui_scale, available_height)), ImGuiCond_Always);
++        ImGui::SetNextWindowPos(ImVec2(10.f, window_pos), ImGuiCond_Always);
+ 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {2.0f, 2.0f});
+ 
+ 		if (ImGui::Begin("playerlist", nullptr, window_flags))
+ 		{
+-			const auto style = ImGui::GetStyle();
+-			float window_height = (
+-				ImGui::CalcTextSize("A").y + style.FramePadding.y * 2.0f + style.ItemSpacing.y) // button size
+-				* player_count // amount of players
+-				+ (player_count > 1) * ((style.ItemSpacing.y * 2) + 1.f) // account for ImGui::Separator spacing
+-				+ (player_count == 1) * 2.f; // some arbitrary height to make it fit
+-			// used to account for scrollbar width
+-			has_scrollbar = window_height + window_pos > (float)*g_pointers->m_gta.m_resolution_y - 10.f;
+-
+-			// basically whichever is smaller, the max available screenspace or the calculated window_height
+-			window_height = has_scrollbar ? (float)*g_pointers->m_gta.m_resolution_y - (window_pos + 40.f) : window_height;
++			compact_ui::decorate_window();
++            const float window_height = ImGui::GetContentRegionAvail().y;
++            const float row_height = ImGui::GetFrameHeightWithSpacing();
++            has_scrollbar = row_height * static_cast<float>(player_count) > window_height;
+ 
+ 			ImGui::PushStyleColor(ImGuiCol_FrameBg, {0.f, 0.f, 0.f, 0.f});
+ 			ImGui::PushStyleColor(ImGuiCol_ScrollbarBg, {0.f, 0.f, 0.f, 0.f});
+diff --git a/src/views/settings/view_gui_settings.cpp b/src/views/settings/view_gui_settings.cpp
+index 8dbc06d..efaa4b3 100644
+--- a/src/views/settings/view_gui_settings.cpp
++++ b/src/views/settings/view_gui_settings.cpp
+@@ -1,12 +1,32 @@
+ #include "renderer/renderer.hpp"
++#include "gui.hpp"
+ #include "views/view.hpp"
+ 
+ namespace big
+ {
+ 	void view::gui_settings()
+ 	{
++        static ImVec4 col_gui = ImGui::ColorConvertU32ToFloat4(g.window.background_color);
++        static ImVec4 col_text = ImGui::ColorConvertU32ToFloat4(g.window.text_color);
++        static ImVec4 col_button = ImGui::ColorConvertU32ToFloat4(g.window.button_color);
++        static ImVec4 col_frame = ImGui::ColorConvertU32ToFloat4(g.window.frame_color);
++        static auto gui_scale = g.window.gui_scale;
++        if (ImGui::Button("Apply compact violet preset"))
++        {
++            g.window.background_color = IM_COL32(12, 6, 19, 247);
++            g.window.text_color = IM_COL32(240, 235, 255, 255);
++            g.window.button_color = IM_COL32(48, 19, 82, 255);
++            g.window.frame_color = IM_COL32(36, 17, 59, 255);
++            g.window.gui_scale = gui_scale = .90f;
++            col_gui = ImGui::ColorConvertU32ToFloat4(g.window.background_color);
++            col_text = ImGui::ColorConvertU32ToFloat4(g.window.text_color);
++            col_button = ImGui::ColorConvertU32ToFloat4(g.window.button_color);
++            col_frame = ImGui::ColorConvertU32ToFloat4(g.window.frame_color);
++            g_gui->dx_init();
++            g_renderer.rescale(g.window.gui_scale);
++        }
++        ImGui::Separator();
+ 		components::sub_title("SETTINGS_UI_SCALE"_T);
+-		static auto gui_scale = g.window.gui_scale;
+ 		ImGui::SliderFloat("##gui-scale", &gui_scale, 0.75f, 1.5f, "%.2f");
+ 		if (ImGui::IsItemDeactivatedAfterEdit())
+ 		{
+@@ -15,25 +35,21 @@ namespace big
+ 		}
+ 
+ 		components::sub_title("SETTINGS_UI_COLOR"_T);
+-		static ImVec4 col_gui = ImGui::ColorConvertU32ToFloat4(g.window.background_color);
+ 		if (ImGui::ColorEdit4("SETTINGS_UI_COLOR_PICKER"_T.data(), (float*)&col_gui, ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoSidePreview))
+ 		{
+ 			g.window.background_color = ImGui::ColorConvertFloat4ToU32(col_gui);
+ 		}
+ 
+-		static ImVec4 col_text = ImGui::ColorConvertU32ToFloat4(g.window.text_color);
+ 		if (ImGui::ColorEdit4("VIEW_GUI_SETTINGS_TEXT_COLOR"_T.data(), (float*)&col_text, ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoSidePreview))
+ 		{
+ 			g.window.text_color = ImGui::ColorConvertFloat4ToU32(col_text);
+ 		}
+ 
+-		static ImVec4 col_button = ImGui::ColorConvertU32ToFloat4(g.window.button_color);
+ 		if (ImGui::ColorEdit4("VIEW_GUI_SETTINGS_BUTTON_COLOR"_T.data(), (float*)&col_button, ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoSidePreview))
+ 		{
+ 			g.window.button_color = ImGui::ColorConvertFloat4ToU32(col_button);
+ 		}
+ 
+-		static ImVec4 col_frame = ImGui::ColorConvertU32ToFloat4(g.window.frame_color);
+ 		if (ImGui::ColorEdit4("VIEW_GUI_SETTINGS_FRAME_COLOR"_T.data(), (float*)&col_frame, ImGuiColorEditFlags_InputRGB | ImGuiColorEditFlags_NoSidePreview))
+ 		{
+ 			g.window.frame_color = ImGui::ColorConvertFloat4ToU32(col_frame);

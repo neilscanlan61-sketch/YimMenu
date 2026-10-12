@@ -1,4 +1,5 @@
 #pragma once
+#include "gui/compact_theme.hpp"
 #include "backend/command.hpp"
 #include "backend/float_command.hpp"
 #include "backend/int_command.hpp"
@@ -78,7 +79,7 @@ namespace big
 			}
 
 			bool updated;
-			if (updated = ImGui::Checkbox(label_override.value_or(command->get_label()).data(), &command->is_enabled()))
+			if (updated = compact_ui::toggle(label_override.value_or(command->get_label()).data(), &command->is_enabled()))
 				command->refresh();
 			if (ImGui::IsItemHovered() && !command->get_description().empty())
 				ImGui::SetTooltip(command->get_description().c_str());
